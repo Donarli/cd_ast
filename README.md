@@ -1,35 +1,15 @@
-An Coordinate Descent Approach to Atomic Norm Denoising 
-Simple overview of use/purpose.
+This is the prototype repository of "An Coordinate Descent Approach to Atomic Norm Denoising" 
 
 Description
-An in-depth paragraph about your project and overview of use.
+The respository provide the general optimization function and 2 solvers of conic projection problems, for the cases of 1D SMV and 2D MMV. 
 
-Getting Started
-Dependencies
-Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-ex. Windows 10
-Installing
-How/where to download your program
-Any modifications needed to be made to files/folders
-Executing program
-How to run the program
-Step-by-step bullets
-code blocks for commands
-Help
-Any advise for common problems or issues.
+Reference for the Academic Journal: 
+R. Li and D. Cabric, "A Coordinate Descent Approach to Atomic Norm Denoising," in IEEE Transactions on Signal Processing, vol. 72, pp. 5077-5090, 2024, doi: 10.1109/TSP.2024.3486533.
 
-command to run if program contains helper info
 Authors
-Contributors names and contact info
+Donarli (doanr37@ucla.edu)
 
-ex. Dominique Pizzie
-ex. @DomPizzie
 
-Version History
-0.2
-Various bug fixes and optimizations
-See commit change or See release history
-0.1
-Initial Release
+
 License
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for detai
+This project is licensed under the MIT License - see the LICENSE.md file for detai
