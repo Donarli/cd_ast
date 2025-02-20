@@ -1,4 +1,4 @@
-This is the prototype repository of "An Coordinate Descent Approach to Atomic Norm Denoising" 
+This is the prototype repository of "A Coordinate Descent Approach to Atomic Norm Denoising" 
 
 Description
 The respository provide the general optimization function and 2 solvers of conic projection problems, for the cases of 1D SMV and 2D MMV. 
