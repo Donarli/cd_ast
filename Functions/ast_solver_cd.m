@@ -14,6 +14,7 @@ function [sol, log] = ast_solver_cd(y, opts)
     % Define logging of the solver
     log = [];
     log.obj_hist = zeros(opts.iterations, 1);
+    log.obj_real = zeros(opts.iterations, 1);
     log.gap_hist = zeros(opts.iterations, 1);
 
     % See if initial solution is provided 
@@ -65,7 +66,7 @@ function [sol, log] = ast_solver_cd(y, opts)
             yr_i = yr + c_coef(i) * a_coef{i};
             
             % Get the projection ready 
-            [c_i, a_i, params_i] = opts.rank_1_solver(yr_i, zeta_prime, opts.extra_arg);
+            [c_i, a_i, params_i] = opts.rank_1_solver(yr_i, zeta_prime, f_coef{i});
 
             % Get the y-vector back 
             yr = yr_i - c_i * a_i;
@@ -96,18 +97,19 @@ function [sol, log] = ast_solver_cd(y, opts)
 
             % Compute the Objective 
             obj_k = zeta/2 * inner_xy(y - x, y - x) + sum(abs(c_coef), "all");
+            obj_k_real = zeta_prime/2 * inner_xy(y - x, y - x) + sum(abs(c_coef), "all");
 
             % Compute the Duality Gap 
             dual_gap = abs(sum(abs(c_coef), "all") - zeta * inner_xy(yr, x));
 
             if dual_gap <= opts.epsilon 
 
-                [c_i, ~, ~] = opts.rank_1_solver(yr, zeta, opts.extra_arg);
+                [c_i, ~, params_new] = opts.rank_1_solver(yr, zeta);
 
                 % Detects whether a new element should be added
                 if abs(c_i) > 0
 
-                    [c_i, a_i, params_i] = opts.rank_1_solver(yr, zeta_prime, opts.extra_arg);
+                    [c_i, a_i, params_i] = opts.rank_1_solver(yr, zeta_prime, params_new);
                     a_coef{numel(a_coef) + 1} = a_i;
                     c_coef(numel(a_coef)) = c_i;
                     f_coef{numel(a_coef)} = params_i;
@@ -117,6 +119,7 @@ function [sol, log] = ast_solver_cd(y, opts)
                     L = numel(a_coef);
                     i = 1;
                 else
+                    fprintf("Iteration Terminates wtih %d iterations !! \n", k);
                     break;
                 end
             else
@@ -125,11 +128,13 @@ function [sol, log] = ast_solver_cd(y, opts)
         end
         log.gap_hist(k) = dual_gap;
         log.obj_hist(k) = obj_k;
+        log.obj_real(k) = obj_k_real;
         
-        if k > 1 && (log.obj_hist(k) > log.obj_hist(k - 1))
-            disp(['Wrong Objectives: ', num2str(log.obj_hist(k)), '-> ',...
-                num2str(log.obj_hist(k - 1)) ])
-        end
+        % % Debugging =======================================================
+        % if k > 1 && (log.obj_real(k) > log.obj_real(k - 1))
+        %     disp(['Wrong Objectives: ', num2str(log.obj_real(k)), '-> ',...
+        %         num2str(log.obj_real(k - 1)) ])
+        % end
 
     end
 
