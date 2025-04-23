@@ -9,12 +9,10 @@ function [c, a, params] = mmv_2d_solver(Y, zeta, varargin)
     
     oversampling = varargin{1}; 
     num_iter = 30;
-    tol = 1e-5;
+    tol = 1e-8;
 
     % Create Some Basic Variables
     Yr = Y;
-%     agrad_f_u = 1j * seq_u;
-%     agrad_f_v = 1j * seq_v;
 
     % Create Some frequency axis
     f_u = linspace(0, 2*pi * (oversampling * N_u - 1) / oversampling / N_u, ...
@@ -58,6 +56,11 @@ function [c, a, params] = mmv_2d_solver(Y, zeta, varargin)
         grad_f(1) = 2 * sum(real(conj(Y_a_f) .* Y_a_f_du), "all");
         grad_f(2) = 2 * sum(real(conj(Y_a_f) .* Y_a_f_dv), "all");
 
+        % Termination Criterion on Norm of Gradient
+        if norm(grad_f, 'fro') <= tol
+            break;
+        end
+
         % Calculate the Hessian 
         H = zeros(2,2);
         H(1,1) = 2 * sum( real(conj(Y_a_f_du).* Y_a_f_du + conj(Y_a_f).*Y_a_f_d2u), "all");
@@ -78,7 +81,7 @@ function [c, a, params] = mmv_2d_solver(Y, zeta, varargin)
         obj_new = squeeze(vecnorm(sum(Yr .* conj(a_f_new),[1,2]) ,2,3));
 
         % Objectives Debugging 
-%         disp([norm(delta_uv) step_size])
+        % disp([norm(delta_uv) step_size])
 
         % Create some backtracking line-search 
         while(obj_new < obj_old)
@@ -92,7 +95,7 @@ function [c, a, params] = mmv_2d_solver(Y, zeta, varargin)
 
             obj_new = norm(sum(Yr .* conj(a_f_new),[1,2]) ,"fro");
 
-            if abs(step_size) <= 1e-5
+            if abs(step_size) <= tol
                 break;
             end
         end
@@ -115,12 +118,6 @@ function [c, a, params] = mmv_2d_solver(Y, zeta, varargin)
         elseif f_v_max >= 2*pi
             f_v_max = f_v_max - 2 * pi;
         end
-
-        % Termination Criterion
-        if norm(step_size * delta_uv) <= tol
-            break;
-        end
-
 
     end
 

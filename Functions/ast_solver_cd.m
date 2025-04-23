@@ -26,7 +26,7 @@ function [sol, log] = ast_solver_cd(y, opts)
     zeta = opts.zeta;
 
 
-    % Get a inner product 
+    % Check inner product 
     inner_xy = opts.inner_product;
 
     % Some Sanity Check
@@ -46,13 +46,13 @@ function [sol, log] = ast_solver_cd(y, opts)
         error("Incorrect Residual!")
     end
 
-    % Compute the objective 
+    % Check objective 
     obj_k = zeta / 2 * inner_xy(yr, yr) + sum(abs(c_coef), "all");
 
     L = numel(c_coef); 
     i = 1;
 
-    % Get a delta factor ready 
+    % Check delta 
     delta = opts.epsilon / (opts.zeta * norm_y + opts.epsilon);
 
     % Zeta Prime
@@ -65,7 +65,7 @@ function [sol, log] = ast_solver_cd(y, opts)
             % Get the refinement vector 
             yr_i = yr + c_coef(i) * a_coef{i};
             
-            % Get the projection ready 
+            % Check Projection
             [c_i, a_i, params_i] = opts.rank_1_solver(yr_i, zeta_prime, f_coef{i});
 
             % Get the y-vector back 
@@ -89,13 +89,13 @@ function [sol, log] = ast_solver_cd(y, opts)
             i = i + 1;
 
         else
-            % Get the x ready again for computing the duality gap 
+            % Check x again for computing the duality gap 
             x = 0;
             for i = 1:numel(a_coef)
                 x = x + a_coef{i} * c_coef(i);
             end
 
-            % Compute the Objective 
+            % Check Objectives 
             obj_k = zeta/2 * inner_xy(y - x, y - x) + sum(abs(c_coef), "all");
             obj_k_real = zeta_prime/2 * inner_xy(y - x, y - x) + sum(abs(c_coef), "all");
 

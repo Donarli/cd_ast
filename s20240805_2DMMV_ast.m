@@ -19,10 +19,9 @@ Y = (randn(M,N,L) + 1j * randn(M,N,L)) / sqrt(2);
 
 
 mean_ze2 =  exp(sum(  log(  1/4 + L./(1:1:(L - 1))/4  )  ))*sqrt(pi) * L / 2* sqrt(N_u * N_v);
-% disp(mean_ze - mean_ze2)
 std_ze = sqrt(N_u * N_v * L - mean_ze2^2);
 
-zeta = mean_ze2 + 6 * std_ze; 
+zeta = mean_ze2 + 4.5 * std_ze;
 zeta = 1/zeta;
 
 
@@ -44,11 +43,17 @@ for i = 1:num_source
     
     end
 
-%% Get the optimization algorithm going 
+%% Optimization algorithm 
 
 opts = [];
-opts.iterations = 1200;
-opts.epsilon = 1e-2;
+opts.iterations = 200;
+
+% Use Definite epsilon
+% opts.epsilon = 1e-2;
+
+% Use relative epsilon
+opts.epsilon = 1e-2 * zeta * norm(Y,'fro');
+
 opts.oversampling = 8;
 opts.rank_1_solver = @(x, zeta, varargin) mmv_2d_solver(x, zeta, opts.oversampling);
 opts.zeta = zeta;
@@ -67,9 +72,7 @@ plot(log_hist.obj_hist(log_hist.obj_hist > 0))
 grid on 
 
 
-%%
-
-% [c, a] = mmv_2d_solver_local(Y, zeta);
+%% Visualization
 
 
 n_points = 300;
@@ -80,11 +83,20 @@ v_axis = linspace(0, 2*pi*(n_points - 1)/n_points, n_points);
 figure
 subplot(1,2,1)
 pcolor(u_axis, v_axis, vecnorm(fft2(Y, n_points, n_points), 2, 3))
+title("Spectrum of Input Samples")
 hold on
+% Add Extra Visualization For Estimated Results
+estimated_parameters = cell2mat(sol_hist.parameters');
+plot(estimated_parameters(:, 2), estimated_parameters(:, 1), 'ro','LineWidth',2)
 shading interp
 colorbar
 subplot(1,2,2)
 pcolor(u_axis, v_axis, vecnorm(fft2(sol_hist.residual, n_points, n_points), 2, 3))
+hold on
+% Add Extra Visualization For Estimated Results
+estimated_parameters = cell2mat(sol_hist.parameters');
+plot(estimated_parameters(:, 2), estimated_parameters(:, 1), 'ro','LineWidth',2)
+title("Spectrum of Residual")
 shading interp
 colorbar()
 grid on
